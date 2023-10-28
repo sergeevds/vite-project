@@ -21,11 +21,19 @@ class ResultSection extends React.Component<
     loading: false,
   };
 
-  async componentDidUpdate(prevProps: ResultSectionProps) {
+  async loadResults() {
+    this.setState({ loading: true });
+    const newResults = await getPeople(this.props.searchTerm);
+    this.setState({ results: newResults, loading: false });
+  }
+
+  componentDidMount() {
+    this.loadResults();
+  }
+
+  componentDidUpdate(prevProps: ResultSectionProps) {
     if (prevProps.searchTerm !== this.props.searchTerm) {
-      this.setState({ loading: true });
-      const newResults = await getPeople(this.props.searchTerm);
-      this.setState({ results: newResults, loading: false });
+      this.loadResults();
     }
   }
 

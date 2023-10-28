@@ -16,7 +16,7 @@ type AppState = Readonly<{
 class App extends Component<null, AppState> {
   state: AppState = {
     term: localStorage.getItem(LOCAL_STORAGE_KEY) || '',
-    termForResults: '',
+    termForResults: localStorage.getItem(LOCAL_STORAGE_KEY) || '',
   };
 
   handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,7 +25,7 @@ class App extends Component<null, AppState> {
 
   handleClick = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, this.state.term);
-    this.setState({ termForResults: this.state.term });
+    this.setState({ termForResults: this.state.term.trim() });
   };
 
   render() {
