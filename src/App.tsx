@@ -13,7 +13,9 @@ type AppState = Readonly<{
   termForResults: string;
 }>;
 
-class App extends Component<null, AppState> {
+type AppProps = Readonly<object>;
+
+class App extends Component<AppProps, AppState> {
   state: AppState = {
     term: localStorage.getItem(LOCAL_STORAGE_KEY) || '',
     termForResults: localStorage.getItem(LOCAL_STORAGE_KEY) || '',
