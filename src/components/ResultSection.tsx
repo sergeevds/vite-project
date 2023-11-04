@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { getPeople } from '../api/swap';
 import People from '../types/People';
 import Spinner from './Spinner';
@@ -7,64 +7,47 @@ type ResultSectionProps = Readonly<{
   searchTerm: string;
 }>;
 
-type ResultSectionState = Readonly<{
-  results: People[];
-  loading: boolean;
-}>;
+function ResultSection(props: ResultSectionProps) {
+  const { searchTerm } = props;
+  const [results, setResults] = React.useState<People[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(false);
 
-class ResultSection extends React.Component<
-  ResultSectionProps,
-  ResultSectionState
-> {
-  state: ResultSectionState = {
-    results: [],
-    loading: false,
+  const loadResults = async (term : string) => {
+    setLoading(true);
+    const newResults = await getPeople(term);
+    setResults(newResults);
+    setLoading(false);
   };
 
-  async loadResults() {
-    this.setState({ loading: true });
-    const newResults = await getPeople(this.props.searchTerm);
-    this.setState({ results: newResults, loading: false });
-  }
+  useEffect(() => {
+    loadResults(searchTerm);
+  }, [searchTerm]);
 
-  componentDidMount() {
-    this.loadResults();
-  }
+  const isEmptyResults = results.length === 0 && !!props.searchTerm;
 
-  componentDidUpdate(prevProps: ResultSectionProps) {
-    if (prevProps.searchTerm !== this.props.searchTerm) {
-      this.loadResults();
-    }
-  }
-
-  render() {
-    const isEmptyResults =
-      this.state.results.length === 0 && !!this.props.searchTerm;
-
-    return this.state.loading ? (
-      <Spinner />
-    ) : isEmptyResults ? (
-      <h2>No Results for {this.props.searchTerm}</h2>
-    ) : (
-      <>
-        <h2>
-          {this.props.searchTerm ? (
-            <>Results for {this.props.searchTerm}</>
-          ) : (
-            <>Click Search or Enter to run search</>
-          )}
-        </h2>
-        <ul>
-          {this.state.results.map((person) => (
-            <li key={person.name}>
-              {person.name} {person.height || 'N/A'} cm / {person.mass || 'N/A'}{' '}
-              kg
-            </li>
-          ))}
-        </ul>
-      </>
-    );
-  }
+  return loading ? (
+    <Spinner />
+  ) : isEmptyResults ? (
+    <h2>No Results for {props.searchTerm}</h2>
+  ) : (
+    <>
+      <h2>
+        {props.searchTerm ? (
+          <>Results for {props.searchTerm}</>
+        ) : (
+          <>Click Search or Enter to run search</>
+        )}
+      </h2>
+      <ul>
+        {results.map((person) => (
+          <li key={person.name}>
+            {person.name} {person.height || 'N/A'} cm / {person.mass || 'N/A'}{' '}
+            kg
+          </li>
+        ))}
+      </ul>
+    </>
+  );
 }
 
 export default ResultSection;

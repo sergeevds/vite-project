@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { useState, useCallback } from 'react';
 import './App.css';
 
 import AppErrorBoundary from './components/AppErrorBoundary';
@@ -8,40 +8,36 @@ import ResultSection from './components/ResultSection';
 
 const LOCAL_STORAGE_KEY = 'searchTerm';
 
-type AppState = Readonly<{
-  term: string;
-  termForResults: string;
-}>;
+function App() {
+  const [term, setTerm] = useState<string>(
+    localStorage.getItem(LOCAL_STORAGE_KEY) || ''
+  );
+  const [termForResults, setTermForResults] = useState<string>(term);
 
-type AppProps = Readonly<object>;
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setTerm(event.target.value);
+    },
+    []
+  );
 
-class App extends Component<AppProps, AppState> {
-  state: AppState = {
-    term: localStorage.getItem(LOCAL_STORAGE_KEY) || '',
-    termForResults: localStorage.getItem(LOCAL_STORAGE_KEY) || '',
-  };
+  const handleClick = useCallback(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, term);
+    setTermForResults(term.trim());
+  }, [term]);
 
-  handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ term: event.target.value });
-  };
+  return (
+    <AppErrorBoundary>
+      <ErrorProneComponent />
+      <SearchSection
+        term={term}
+        handleChange={handleChange}
+        handleClick={handleClick}
+      />
 
-  handleClick = () => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, this.state.term);
-    this.setState({ termForResults: this.state.term.trim() });
-  };
-
-  render() {
-    return (
-      <AppErrorBoundary>
-        <ErrorProneComponent />
-        <SearchSection
-          term={this.state.term}
-          handleChange={this.handleChange}
-          handleClick={this.handleClick}
-        />
-        <ResultSection searchTerm={this.state.termForResults} />
-      </AppErrorBoundary>
-    );
-  }
+      <ResultSection searchTerm={termForResults} />
+    </AppErrorBoundary>
+  );
 }
+
 export default App;

@@ -1,9 +1,7 @@
-import { PureComponent } from 'react';
+import React from 'react';
 
-class Spinner extends PureComponent {
-  render() {
-    return <span>Loading ...</span>;
-  }
+function Spinner() {
+  return <span>Loading ...</span>;
 }
 
 export default Spinner;

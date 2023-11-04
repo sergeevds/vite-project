@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 type SearchSectionProps = Readonly<{
   term: string;
@@ -6,37 +6,33 @@ type SearchSectionProps = Readonly<{
   handleClick: () => void;
 }>;
 
-type SearchSectionState = Readonly<{
-  term: string;
-}>;
+function SearchSection(props: SearchSectionProps) {
+  const { handleClick } = props;
 
-class SearchSection extends React.Component<
-  SearchSectionProps,
-  SearchSectionState
-> {
-  handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    this.props.handleClick();
-  };
+  const handleSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      handleClick();
+    },
+    [handleClick]
+  );
 
-  render() {
-    return (
+  return (
+    <div>
       <div>
-        <div>
-          <h3>Search for Star Wars characters</h3>
-        </div>
-        <form onSubmit={this.handleSubmit}>
-          <input
-            type="text"
-            placeholder="Search ..."
-            onChange={this.props.handleChange}
-            value={this.props.term}
-          />
-          <button onClick={this.props.handleClick}>Search</button>
-        </form>
+        <h3>Search for Star Wars characters</h3>
       </div>
-    );
-  }
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Search ..."
+          onChange={props.handleChange}
+          value={props.term}
+        />
+        <button onClick={props.handleClick}>Search</button>
+      </form>
+    </div>
+  );
 }
 
 export default SearchSection;
