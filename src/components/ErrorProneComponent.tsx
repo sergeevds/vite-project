@@ -1,26 +1,23 @@
-import { Component } from 'react';
+import { useCallback, useState } from 'react';
 
-class ErrorProneComponent extends Component {
-  state = {
-    shouldThrowError: false,
-  };
+function ErrorProneComponent() {
+  const [shouldThrowError, setShouldThrowError] = useState(false);
 
-  throwError = () => {
-    this.setState({ shouldThrowError: true });
-  };
+  const throwError = useCallback(() => {
+    setShouldThrowError(true);
+  }, []);
 
-  render() {
-    if (this.state.shouldThrowError) {
-      throw new Error('Error thrown from ErrorProneComponent');
-    }
-    return (
-      <div>
-        <button style={{ backgroundColor: 'red' }} onClick={this.throwError}>
-          Trigger Error
-        </button>
-      </div>
-    );
+  if (shouldThrowError) {
+    throw new Error('Error thrown from ErrorProneComponent');
   }
+
+  return (
+    <div>
+      <button style={{ backgroundColor: 'red' }} onClick={throwError}>
+        Trigger Error
+      </button>
+    </div>
+  );
 }
 
 export default ErrorProneComponent;

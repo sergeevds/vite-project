@@ -1,47 +1,38 @@
-import { Component } from 'react';
+import React, { memo } from 'react';
+import { Outlet } from 'react-router-dom';
+
 import './App.css';
 
-import AppErrorBoundary from './components/AppErrorBoundary';
 import ErrorProneComponent from './components/ErrorProneComponent';
 import SearchSection from './components/SearchSection';
-import ResultSection from './components/ResultSection';
+import PeopleRoute from './components/PeopleRoute';
+import AppErrorBoundary from './components/AppErrorBoundary';
+import { PeopleResponse } from './api/types';
 
-const LOCAL_STORAGE_KEY = 'searchTerm';
+function App() {
+  const [peopleResponse, setPeopleResponse] = React.useState<PeopleResponse>({
+    previous: '',
+    next: '',
+    results: [],
+  });
 
-type AppState = Readonly<{
-  term: string;
-  termForResults: string;
-}>;
-
-type AppProps = Readonly<object>;
-
-class App extends Component<AppProps, AppState> {
-  state: AppState = {
-    term: localStorage.getItem(LOCAL_STORAGE_KEY) || '',
-    termForResults: localStorage.getItem(LOCAL_STORAGE_KEY) || '',
-  };
-
-  handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ term: event.target.value });
-  };
-
-  handleClick = () => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, this.state.term);
-    this.setState({ termForResults: this.state.term.trim() });
-  };
-
-  render() {
-    return (
-      <AppErrorBoundary>
-        <ErrorProneComponent />
-        <SearchSection
-          term={this.state.term}
-          handleChange={this.handleChange}
-          handleClick={this.handleClick}
-        />
-        <ResultSection searchTerm={this.state.termForResults} />
-      </AppErrorBoundary>
-    );
-  }
+  return (
+    <AppErrorBoundary>
+      <div style={{ display: 'flex' }}>
+        <div style={{ width: '70vw' }}>
+          <ErrorProneComponent />
+          <SearchSection />
+          <PeopleRoute
+            onLoadSuccess={setPeopleResponse}
+            people={peopleResponse}
+          />
+        </div>
+        <div style={{ width: '25vw' }}>
+          <Outlet />
+        </div>
+      </div>
+    </AppErrorBoundary>
+  );
 }
-export default App;
+
+export default memo(App);
