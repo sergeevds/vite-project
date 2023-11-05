@@ -2,6 +2,7 @@ import { ReactNode, Suspense } from 'react';
 import {
   Await,
   Link,
+  Params,
   defer,
   useLoaderData,
   useLocation,
@@ -12,8 +13,8 @@ import Spinner from './Spinner';
 import Person from '../types/People';
 import PersonCard from './PersonCard';
 
-export async function loader({ params }: { params: { personId: number } }) {
-  const person = getPerson(params.personId);
+export async function loader({ params }: { params: Params }) {
+  const person = getPerson(+params.personId!);
   return defer({ person });
 }
 
