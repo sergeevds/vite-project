@@ -6,6 +6,9 @@ const LOCAL_STORAGE_KEY = 'term';
 export async function action({ request }: { request: Request }) {
   const formData = await request.formData();
   const url = new URL(request.url);
+  // const page = url.searchParams.has('page')
+  //   ? +url.searchParams.get('page')!
+  //   : 1;
   const newTerm = (formData.get('term') as string) || '';
   localStorage.setItem(LOCAL_STORAGE_KEY, newTerm);
   return redirect(`${url.pathname}?term=${newTerm}`);

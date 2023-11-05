@@ -7,7 +7,10 @@ import { action as searchAction } from './components/SearchSection.tsx';
 
 import './index.css';
 import { loader as peopleLoader } from './components/ResultSection.tsx';
-import { PersonCard } from './components/PersonCard.tsx';
+import {
+  PersonCard,
+  loader as personLoader,
+} from './components/PersonCard.tsx';
 
 const router = createBrowserRouter([
   {
@@ -20,22 +23,18 @@ const router = createBrowserRouter([
     ),
     action: searchAction,
     loader: peopleLoader,
-    shouldRevalidate: ({ currentUrl, currentParams, nextUrl, nextParams }) => {
-      console.log('shouldRevalidate >>>', {
-        currentUrl,
-        currentParams,
-        nextUrl,
-        nextParams,
-      });
-
+    shouldRevalidate: ({ currentUrl, nextUrl }) => {
       return (
-        currentUrl.searchParams.get('term') !== nextUrl.searchParams.get('term')
+        currentUrl.searchParams.get('term') !==
+          nextUrl.searchParams.get('term') ||
+        currentUrl.searchParams.get('page') !== nextUrl.searchParams.get('page')
       );
     },
     children: [
       {
         path: 'people/:personId',
         element: <PersonCard />,
+        loader: personLoader,
         action: searchAction,
       },
     ],

@@ -9,7 +9,9 @@ import {
   useLoaderData,
   useLocation,
   useNavigation,
+  useSearchParams,
 } from 'react-router-dom';
+import PeopleList from './PeopleList';
 
 export async function loader({
   request,
@@ -19,13 +21,17 @@ export async function loader({
 }) {
   const url = new URL(request.url);
   const searchTerm = url.searchParams.get('term');
-  const people = getPeople(searchTerm || '');
+  const page = url.searchParams.has('page')
+    ? +url.searchParams.get('page')!
+    : 1;
+
+  console.warn('PEOPLE LOADER >>>', { searchTerm, page });
+  const people = getPeople(searchTerm || '', page);
   // const people = [{ name: 'test', height: 'test', mass: 'test' }];
   return defer({ people });
 }
 
-function ResultSection() {
-  const location = useLocation();
+function ResultSection({ onLoadSuccess, people }) {
   const { state } = useNavigation();
   const data = useLoaderData() as { people: People[] };
 
@@ -36,27 +42,50 @@ function ResultSection() {
   return (
     <Suspense fallback={<Spinner />}>
       <Await resolve={data.people} errorElement={<p>Error fetched!</p>}>
-        {(people: People[]) =>
-          !people ? (
-            <h1>ERROR !!!</h1>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {people.length === 0 ? (
-                <h2>No Results</h2>
-              ) : (
-                people.map((person) => (
-                  <NavLink to={`/people/1${location.search}`} key={person.name}>
-                    {person.name} {person.height || 'N/A'} cm /{' '}
-                    {person.mass || 'N/A'} kg
-                  </NavLink>
-                ))
-              )}
-            </div>
-          )
-        }
+        <PeopleList onLoadSuccess={onLoadSuccess} />
       </Await>
+      <Pagination next={!!people.next} prev={!!people.previous} />
     </Suspense>
   );
 }
+
+const Pagination = ({ next, prev }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = searchParams.has('page') ? +searchParams.get('page')! : 1;
+
+  const handleNextClick = () => {
+    const newSearchParams = {
+      ...searchParams,
+      term: searchParams.get('term') || '',
+      page: currentPage + 1,
+    };
+    setSearchParams(newSearchParams);
+  };
+
+  const handlePrevClick = () => {
+    const newSearchParams = {
+      ...searchParams,
+      term: searchParams.get('term') || '',
+      page: currentPage - 1,
+    };
+    setSearchParams(newSearchParams);
+  };
+
+  return (
+    <div style={{ display: 'flex' }}>
+      {prev && (
+        <button type="button" onClick={handlePrevClick}>
+          Previous
+        </button>
+      )}
+      <h3>{currentPage}</h3>
+      {next && (
+        <button type="button" onClick={handleNextClick}>
+          Next
+        </button>
+      )}
+    </div>
+  );
+};
 
 export default ResultSection;

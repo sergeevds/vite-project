@@ -1,10 +1,5 @@
 import React, { memo } from 'react';
-import {
-  Outlet,
-  useLocation,
-  useNavigate,
-  useNavigation,
-} from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 import './App.css';
 
@@ -14,21 +9,18 @@ import ResultSection from './components/ResultSection';
 import AppErrorBoundary from './components/AppErrorBoundary';
 
 function App() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const navigation = useNavigation();
+  const [people, setPeople] = React.useState({});
 
   return (
     <AppErrorBoundary>
       <div style={{ display: 'flex' }}>
-        <div style={{ minWidth: '90%' }}>
+        <div style={{ width: '70vw' }}>
           <ErrorProneComponent />
           <SearchSection />
-          {/* {navigate.state === 'loading' ? <h1>Loading...</h1> : null} */}
-          <ResultSection />
+          <ResultSection onLoadSuccess={setPeople} people={people} />
         </div>
-        <div>
-          <Outlet />
+        <div style={{ width: '25vw' }}>
+          <Outlet context={{ people }} />
         </div>
       </div>
     </AppErrorBoundary>
