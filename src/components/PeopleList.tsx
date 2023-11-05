@@ -1,18 +1,21 @@
-import React, { Suspense, useEffect } from 'react';
-import { getPeople } from '../api/swap';
-import People from '../types/People';
-import Spinner from './Spinner';
+import { ReactNode, useEffect } from 'react';
 import { NavLink, useAsyncValue } from 'react-router-dom';
 
-function PeopleList({ onLoadSuccess }) {
-  const value = useAsyncValue();
+import { PeopleResponse } from '../api/types';
+
+function PeopleList({
+  onLoadSuccess,
+}: {
+  onLoadSuccess: (response: PeopleResponse) => void;
+}): ReactNode {
+  const value = useAsyncValue() as PeopleResponse;
 
   useEffect(() => {
     onLoadSuccess(value);
   }, [onLoadSuccess, value]);
 
   return !value ? (
-    <h1>ERROR !!!</h1>
+    <h1>Something went wrong while people fetching</h1>
   ) : (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       {value.results.length === 0 ? (
@@ -20,8 +23,7 @@ function PeopleList({ onLoadSuccess }) {
       ) : (
         value.results.map((person) => (
           <NavLink to={`${person.url}${location.search}`} key={person.name}>
-            {person.name} {person.height || 'N/A'} cm / {person.mass || 'N/A'}{' '}
-            kg
+            {person.name}
           </NavLink>
         ))
       )}

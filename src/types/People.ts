@@ -1,8 +1,10 @@
-type People = {
+type Person = {
   name: string;
   height: number;
   mass: number;
   url: string;
+  gender: string;
+  hair_color: string;
 };
 
-export default People;
+export default Person;

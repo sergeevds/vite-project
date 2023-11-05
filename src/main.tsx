@@ -6,11 +6,10 @@ import App from './App.tsx';
 import { action as searchAction } from './components/SearchSection.tsx';
 
 import './index.css';
-import { loader as peopleLoader } from './components/ResultSection.tsx';
-import {
-  PersonCard,
+import { loader as peopleLoader } from './components/PeopleRoute.tsx';
+import PersonRoute, {
   loader as personLoader,
-} from './components/PersonCard.tsx';
+} from './components/PersonRoute.tsx';
 
 const router = createBrowserRouter([
   {
@@ -33,7 +32,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: 'people/:personId',
-        element: <PersonCard />,
+        element: <PersonRoute />,
         loader: personLoader,
         action: searchAction,
       },

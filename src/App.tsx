@@ -5,11 +5,16 @@ import './App.css';
 
 import ErrorProneComponent from './components/ErrorProneComponent';
 import SearchSection from './components/SearchSection';
-import ResultSection from './components/ResultSection';
+import PeopleRoute from './components/PeopleRoute';
 import AppErrorBoundary from './components/AppErrorBoundary';
+import { PeopleResponse } from './api/types';
 
 function App() {
-  const [people, setPeople] = React.useState({});
+  const [peopleResponse, setPeopleResponse] = React.useState<PeopleResponse>({
+    previous: '',
+    next: '',
+    results: [],
+  });
 
   return (
     <AppErrorBoundary>
@@ -17,10 +22,13 @@ function App() {
         <div style={{ width: '70vw' }}>
           <ErrorProneComponent />
           <SearchSection />
-          <ResultSection onLoadSuccess={setPeople} people={people} />
+          <PeopleRoute
+            onLoadSuccess={setPeopleResponse}
+            people={peopleResponse}
+          />
         </div>
         <div style={{ width: '25vw' }}>
-          <Outlet context={{ people }} />
+          <Outlet />
         </div>
       </div>
     </AppErrorBoundary>
