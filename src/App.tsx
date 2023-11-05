@@ -1,43 +1,38 @@
-import React, { useState, useCallback } from 'react';
+import React, { memo } from 'react';
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+  useNavigation,
+} from 'react-router-dom';
+
 import './App.css';
 
-import AppErrorBoundary from './components/AppErrorBoundary';
 import ErrorProneComponent from './components/ErrorProneComponent';
 import SearchSection from './components/SearchSection';
 import ResultSection from './components/ResultSection';
-
-const LOCAL_STORAGE_KEY = 'searchTerm';
+import AppErrorBoundary from './components/AppErrorBoundary';
 
 function App() {
-  const [term, setTerm] = useState<string>(
-    localStorage.getItem(LOCAL_STORAGE_KEY) || ''
-  );
-  const [termForResults, setTermForResults] = useState<string>(term);
-
-  const handleChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setTerm(event.target.value);
-    },
-    []
-  );
-
-  const handleClick = useCallback(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, term);
-    setTermForResults(term.trim());
-  }, [term]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const navigation = useNavigation();
 
   return (
     <AppErrorBoundary>
-      <ErrorProneComponent />
-      <SearchSection
-        term={term}
-        handleChange={handleChange}
-        handleClick={handleClick}
-      />
-
-      <ResultSection searchTerm={termForResults} />
+      <div style={{ display: 'flex' }}>
+        <div style={{ minWidth: '90%' }}>
+          <ErrorProneComponent />
+          <SearchSection />
+          {/* {navigate.state === 'loading' ? <h1>Loading...</h1> : null} */}
+          <ResultSection />
+        </div>
+        <div>
+          <Outlet />
+        </div>
+      </div>
     </AppErrorBoundary>
   );
 }
 
-export default App;
+export default memo(App);

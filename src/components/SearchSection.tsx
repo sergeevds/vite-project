@@ -1,36 +1,49 @@
 import React, { useCallback } from 'react';
+import { Form, redirect, useFetcher, useLocation } from 'react-router-dom';
 
-type SearchSectionProps = Readonly<{
-  term: string;
-  handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleClick: () => void;
-}>;
+const LOCAL_STORAGE_KEY = 'term';
 
-function SearchSection(props: SearchSectionProps) {
-  const { handleClick } = props;
+export async function action({ request }: { request: Request }) {
+  const formData = await request.formData();
+  const url = new URL(request.url);
+  const newTerm = (formData.get('term') as string) || '';
+  localStorage.setItem(LOCAL_STORAGE_KEY, newTerm);
+  return redirect(`${url.pathname}?term=${newTerm}`);
+}
 
-  const handleSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      handleClick();
-    },
-    [handleClick]
+function SearchSection() {
+  const location = useLocation();
+  const fetcher = useFetcher();
+
+  const [term, setTerm] = React.useState<string>(
+    new URLSearchParams(location.search).get('term') ||
+      localStorage.getItem(LOCAL_STORAGE_KEY) ||
+      ''
   );
 
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setTerm(event.target.value);
+    },
+    []
+  );
   return (
     <div>
-      <div>
-        <h3>Search for Star Wars characters</h3>
-      </div>
-      <form onSubmit={handleSubmit}>
+      <fetcher.Form
+        id="search-form"
+        role="search"
+        method="post"
+        action={location.pathname}
+      >
         <input
+          name="term"
           type="text"
           placeholder="Search ..."
-          onChange={props.handleChange}
-          value={props.term}
+          onChange={handleChange}
+          value={term}
         />
-        <button onClick={props.handleClick}>Search</button>
-      </form>
+        <button type="submit">Search</button>
+      </fetcher.Form>
     </div>
   );
 }

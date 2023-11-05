@@ -1,52 +1,61 @@
-import React, { useEffect } from 'react';
+import React, { Suspense } from 'react';
 import { getPeople } from '../api/swap';
 import People from '../types/People';
 import Spinner from './Spinner';
+import {
+  Await,
+  NavLink,
+  defer,
+  useLoaderData,
+  useLocation,
+  useNavigation,
+} from 'react-router-dom';
 
-type ResultSectionProps = Readonly<{
-  searchTerm: string;
-}>;
+export async function loader({
+  request,
+}: {
+  request: Request;
+  params: { personId?: string };
+}) {
+  const url = new URL(request.url);
+  const searchTerm = url.searchParams.get('term');
+  const people = getPeople(searchTerm || '');
+  // const people = [{ name: 'test', height: 'test', mass: 'test' }];
+  return defer({ people });
+}
 
-function ResultSection(props: ResultSectionProps) {
-  const { searchTerm } = props;
-  const [results, setResults] = React.useState<People[]>([]);
-  const [loading, setLoading] = React.useState<boolean>(false);
+function ResultSection() {
+  const location = useLocation();
+  const { state } = useNavigation();
+  const data = useLoaderData() as { people: People[] };
 
-  const loadResults = async (term : string) => {
-    setLoading(true);
-    const newResults = await getPeople(term);
-    setResults(newResults);
-    setLoading(false);
-  };
+  if (state === 'loading') {
+    return <Spinner />;
+  }
 
-  useEffect(() => {
-    loadResults(searchTerm);
-  }, [searchTerm]);
-
-  const isEmptyResults = results.length === 0 && !!props.searchTerm;
-
-  return loading ? (
-    <Spinner />
-  ) : isEmptyResults ? (
-    <h2>No Results for {props.searchTerm}</h2>
-  ) : (
-    <>
-      <h2>
-        {props.searchTerm ? (
-          <>Results for {props.searchTerm}</>
-        ) : (
-          <>Click Search or Enter to run search</>
-        )}
-      </h2>
-      <ul>
-        {results.map((person) => (
-          <li key={person.name}>
-            {person.name} {person.height || 'N/A'} cm / {person.mass || 'N/A'}{' '}
-            kg
-          </li>
-        ))}
-      </ul>
-    </>
+  return (
+    <Suspense fallback={<Spinner />}>
+      <Await resolve={data.people} errorElement={<p>Error fetched!</p>}>
+        {(people: People[]) =>
+          !people ? (
+            <h1>ERROR !!!</h1>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {people.length === 0 ? (
+                <h2>No Results</h2>
+              ) : (
+                people.map((person) => (
+                  <NavLink to={`/people/1${location.search}`} key={person.name}>
+                    {person.name} {person.height || 'N/A'} cm /{' '}
+                    {person.mass || 'N/A'} kg
+                  </NavLink>
+                ))
+              )}
+            </div>
+          )
+        }
+      </Await>
+    </Suspense>
   );
 }
 
