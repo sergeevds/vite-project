@@ -1,5 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { redirect, useFetcher, useLocation } from 'react-router-dom';
+import { SearchContext } from '../context/SearchContext';
 
 export const LOCAL_STORAGE_SEARCH_TERM_KEY = 'term';
 
@@ -14,19 +15,15 @@ export async function action({ request }: { request: Request }) {
 function SearchSection() {
   const location = useLocation();
   const fetcher = useFetcher();
-
-  const [term, setTerm] = React.useState<string>(
-    new URLSearchParams(location.search).get('term') ||
-      localStorage.getItem(LOCAL_STORAGE_SEARCH_TERM_KEY) ||
-      ''
-  );
+  const { term, setTerm } = useContext(SearchContext);
 
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setTerm(event.target.value);
     },
-    []
+    [setTerm]
   );
+
   return (
     <div>
       <fetcher.Form
